@@ -1,5 +1,6 @@
 package com.mvvm.basic.ui.main.adapter
 
+import android.location.Location
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -61,5 +62,9 @@ class MainAdapter(private val itemListener: ItemListener? = null) :
         newItem: ResponseBikeStations.Feature,
     ): Boolean {
         return oldItem.properties == newItem.properties
+    }
+
+    companion object {
+        var CURRENT_GPS_LOCATION: Location? = null
     }
 }
