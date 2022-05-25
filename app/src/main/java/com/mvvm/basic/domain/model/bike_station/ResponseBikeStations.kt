@@ -6,14 +6,27 @@ import androidx.annotation.Keep
 @Keep
 class ResponseBikeStations(
     var features: List<Feature>
-){ @Keep
-    class Geometry(
-        var coordinates: List<Double>,
+){
+    @Keep
+    class Feature(
+        var geometry: Geometry,
+        var id: String,
+        var properties: Properties,
         var type: String
     )
 
     @Keep
-    class Feature(
-        var geometry: Geometry
+    class Properties(
+        var bike_racks: String,
+        var bikes: String,
+        var free_racks: String,
+        var label: String,
+        var updated: String
+    )
+
+    @Keep
+    class Geometry(
+        var coordinates: List<Double>,
+        var type: String
     )
 }

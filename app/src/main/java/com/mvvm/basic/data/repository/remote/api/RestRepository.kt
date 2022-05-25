@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 class RestRepository @Inject constructor(private val restService: RestService) : RestDataSource {
 
-    suspend fun bikeStations(): Result<ResponseBikeStations> {
+    override suspend fun bikeStations(): Result<ResponseBikeStations> {
         return restService.bikeStations()
     }
 }
