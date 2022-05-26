@@ -26,14 +26,14 @@ class MainActivity : AppCompatActivity() {
 
     private var easyWayLocation: EasyWayLocation? = null
     private var progressDialog: ProgressDialog? = null
-    private val viewModel: MainViewModel by lazy { ViewModelProvider(this)[MainViewModel::class.java] }
+    private val viewModel: MainViewModel by lazy { ViewModelProvider(this)[MainViewModel::class.java] } //initialize viewmodel
     private lateinit var binding: ActivityMainBinding
     private var mainAdapter: MainAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityMainBinding.inflate(layoutInflater) //inflate layout binding
         setContentView(binding.root)
         viewModel.onCreate()
 
@@ -46,6 +46,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initPermission() {
+        /*
+        * Check location permission allowed
+        */
         if (selfCheckPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
             Log.i("initPermission", "have permission")
 
@@ -55,6 +58,9 @@ class MainActivity : AppCompatActivity() {
         ) {
             toast("Location permission required")
         } else {
+            /*
+            * request when location permission denied
+            */
             ActivityCompat.requestPermissions(
                 this@MainActivity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 101
             );
@@ -62,19 +68,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initGps() {
+        /*
+        *Listen for location changes every 1 minutes
+        */
         easyWayLocation = EasyWayLocation(this, false, false, object : Listener {
             override fun locationOn() {
                 Log.e("MainScreen", "locationOn")
             }
 
             override fun currentLocation(location: Location?) {
+                /*
+                * copy retrieved location into Adapter variable
+                */
                 Log.e(
                     "MainScreen",
                     "currentLocation: lat.${location?.latitude} lng.${location?.longitude}"
                 )
                 location?.let {
                     MainAdapter.CURRENT_GPS_LOCATION = it
-                    mainAdapter?.notifyDataSetChanged()
+                    mainAdapter?.notifyDataSetChanged() //apply location retrieval changes into viewholder
                 }
             }
 
@@ -89,6 +101,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initObserver() {
+        /*
+        * show loader ui from ViewModel
+        * */
         viewModel.liveDataLoader.observe(this) {
             if (it) {
                 if (progressDialog != null) {
@@ -106,6 +121,9 @@ class MainActivity : AppCompatActivity() {
                 progressDialog = null
             }
         }
+        /*
+        * Retrieve bike stations list and apply to adapter
+        * */
         viewModel.liveDataBikeStations.observe(this) {
             if (mainAdapter == null) {
                 mainAdapter = MainAdapter(itemListener)
@@ -122,7 +140,13 @@ class MainActivity : AppCompatActivity() {
     private fun initPreview() {
     }
 
+    /*
+    * adapter click listener
+    * */
     private val itemListener = object : MainAdapter.ItemListener {
+        /*
+        * on adapter item clicked
+        * */
         override fun onItemSelected(position: Int, item: ResponseBikeStations.Feature) {
             ViewStationActivity.start(this@MainActivity, item.parcelize())
         }
@@ -158,11 +182,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        easyWayLocation?.startLocation()
+        easyWayLocation?.startLocation() //enable  location listening
     }
 
     override fun onPause() {
         super.onPause()
-        easyWayLocation?.endUpdates()
+        easyWayLocation?.endUpdates() //disable location listening
     }
 }

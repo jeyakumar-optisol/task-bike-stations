@@ -9,8 +9,13 @@ import com.mvvm.basic.domain.model.bike_station.ResponseBikeStations
 import com.mvvm.basic.support.base.BaseAdapter2
 import com.mvvm.basic.support.base.BaseViewHolder
 
+/*
+* extended with BaseAdapter for basic utils to handle diffcallback, and viewholder and selection
+* declared a Model type and selection type, can attach listener to receive click callbacks
+* */
 class MainAdapter(private val itemListener: ItemListener? = null) :
     BaseAdapter2<ResponseBikeStations.Feature, Int>() {
+
     override fun getList(): List<ResponseBikeStations.Feature> {
         return currentList
     }
@@ -19,6 +24,10 @@ class MainAdapter(private val itemListener: ItemListener? = null) :
         parent: ViewGroup,
         viewType: Int,
     ): BaseViewHolder<ResponseBikeStations.Feature, Int> {
+
+        /*
+        * attaching MainViewHolder into adapter with ItemBikeStationsBinding layout binding
+        * */
         return MainViewHolder(
             ItemBikeStationsBinding.inflate(LayoutInflater.from(parent.context)), getSelections()
         )
@@ -51,12 +60,18 @@ class MainAdapter(private val itemListener: ItemListener? = null) :
         }
     }
 
+    /*
+    * diff callback to check same item
+    * */
     override fun isSameItem(
         oldItem: ResponseBikeStations.Feature, newItem: ResponseBikeStations.Feature
     ): Boolean {
         return oldItem.id == newItem.id
     }
 
+    /*
+    * diff callback to check content are same
+    * */
     override fun isSameContent(
         oldItem: ResponseBikeStations.Feature,
         newItem: ResponseBikeStations.Feature,

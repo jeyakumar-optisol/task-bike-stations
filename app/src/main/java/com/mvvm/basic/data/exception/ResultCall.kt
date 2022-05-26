@@ -1,6 +1,5 @@
-package com.data.utility.exception
+package com.mvvm.basic.data.exception
 
-import com.mvvm.basic.data.exception.CustomException
 import okhttp3.Request
 import okio.Timeout
 import retrofit2.Call

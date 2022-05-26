@@ -32,7 +32,7 @@ import org.jetbrains.anko.toast
 
 @AndroidEntryPoint
 class ViewStationActivity : AppCompatActivity() {
-    private val viewModel: ViewStationViewModel by lazy { ViewModelProvider(this)[ViewStationViewModel::class.java] }
+    private val viewModel: ViewStationViewModel by lazy { ViewModelProvider(this)[ViewStationViewModel::class.java] } //initialize viewmodel
     private lateinit var binding: ActivityViewStationBinding
 
     private var easyWayLocation: EasyWayLocation? = null
@@ -57,6 +57,9 @@ class ViewStationActivity : AppCompatActivity() {
     }
 
     private fun initIntent() {
+        /*
+        * retrieve data from intent, when data not present finishing the activity
+        * */
         intent.getParcelableExtra<ResponseBikeStations.Parcel>(INTENT_SELECTED_BIKE_STATION)?.let {
             selectedBikeStation = it
         }.orElse {
@@ -78,11 +81,14 @@ class ViewStationActivity : AppCompatActivity() {
                     .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_bike_marker))
             ).showInfoWindow()
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom((latLng), 11.0F));
-            googleMap.isMyLocationEnabled = true
+            googleMap.isMyLocationEnabled = true //showing current location
         }
     }
 
     private fun initPermission() {
+        /*
+         * Check location permission allowed
+         */
         if (selfCheckPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
             Log.i("initPermission", "have permission")
 
@@ -92,6 +98,9 @@ class ViewStationActivity : AppCompatActivity() {
         ) {
             toast("Location permission required")
         } else {
+            /*
+            * request when location permission denied
+            */
             ActivityCompat.requestPermissions(
                 this@ViewStationActivity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 101
             );
@@ -99,12 +108,18 @@ class ViewStationActivity : AppCompatActivity() {
     }
 
     private fun initGps() {
+        /*
+        *Listen for location changes every 1 minutes
+        */
         easyWayLocation = EasyWayLocation(this, false, false, object : Listener {
             override fun locationOn() {
                 Log.e("MainScreen", "locationOn")
             }
 
             override fun currentLocation(location: Location?) {
+                /*
+                * copy retrieved location into ui
+                */
                 Log.e(
                     "MainScreen",
                     "currentLocation: lat.${location?.latitude} lng.${location?.longitude}"
@@ -122,7 +137,7 @@ class ViewStationActivity : AppCompatActivity() {
                         endLocation.longitude
                     )
 
-                    binding.distance = "${distance.toInt()}m"
+                    binding.distance = "${distance.toInt()}m" //apply variable through viewbinding
                 }
             }
 
@@ -161,7 +176,7 @@ class ViewStationActivity : AppCompatActivity() {
     }
 
     private fun initPreview() {
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true) //enable navigation up
         supportActionBar?.title = selectedBikeStation.properties?.label ?: "Bike Station"
         binding.feature = selectedBikeStation
     }
@@ -197,7 +212,7 @@ class ViewStationActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                onBackPressed()
+                onBackPressed() //when navigation up clicked redirected into previous screen or state
                 return true
             }
         }
@@ -206,17 +221,20 @@ class ViewStationActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        easyWayLocation?.startLocation()
+        easyWayLocation?.startLocation() //enabling listening for location updates
     }
 
     override fun onPause() {
         super.onPause()
-        easyWayLocation?.endUpdates()
+        easyWayLocation?.endUpdates() //disabling listening for location updates
     }
 
     companion object {
         private const val INTENT_SELECTED_BIKE_STATION = "INTENT_SELECTED_BIKE_STATION"
 
+        /*
+        * start activity
+        * */
         fun start(activity: Activity, feature: ResponseBikeStations.Parcel) {
             activity.startActivity(
                 Intent(activity, ViewStationActivity::class.java).putExtra(

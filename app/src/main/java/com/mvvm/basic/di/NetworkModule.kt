@@ -1,7 +1,7 @@
 package com.mvvm.basic.di
 
 import android.util.Log
-import com.data.utility.exception.ResultCallAdapterFactory
+import com.mvvm.basic.data.exception.ResultCallAdapterFactory
 import com.google.gson.GsonBuilder
 import com.mvvm.basic.BuildConfig
 import com.mvvm.basic.data.repository.remote.api.RestRepository
@@ -26,12 +26,18 @@ object NetworkModule {
     @Provides
     @Singleton
     fun restRepository(restService: RestService): RestDataSource {
+        /*
+        * create repository instance with hilt
+        * */
         return RestRepository(restService)
     }
 
     @Provides
     @Singleton
     fun retrofitInstance(): Retrofit {
+        /*
+        * create retrofit instance with provided url
+        * */
         val httpClient = OkHttpClient.Builder().connectTimeout(REST_API_TIMEOUT, TimeUnit.SECONDS)
             .readTimeout(REST_API_TIMEOUT, TimeUnit.SECONDS)
             .writeTimeout(REST_API_TIMEOUT, TimeUnit.SECONDS)

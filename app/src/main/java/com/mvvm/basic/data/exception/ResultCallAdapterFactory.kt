@@ -1,4 +1,4 @@
-package com.data.utility.exception
+package com.mvvm.basic.data.exception
 
 import retrofit2.Call
 import retrofit2.CallAdapter

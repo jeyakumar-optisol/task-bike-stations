@@ -13,7 +13,9 @@ open class ViewStationViewModel @Inject constructor(application: Application) :
     @Inject
     lateinit var restDataSource: RestDataSource
 
+    /*manually triggered from when viewmodel attached to activity*/
     override fun onCreate() {
+        //noop
     }
 
 }

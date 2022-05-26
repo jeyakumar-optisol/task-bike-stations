@@ -14,10 +14,12 @@ class MainViewHolder(
 ) : BaseViewHolder<ResponseBikeStations.Feature, Int>(selectionList, binding.root) {
 
     override fun bind(position: Int, item: ResponseBikeStations.Feature) {
-        binding.feature = item.parcelize()
+        binding.feature = item.parcelize() // apply  databinding into view
+
+        /*check gps location variable are notnull to calculate distance*/
         MainAdapter.CURRENT_GPS_LOCATION?.let { currentLocation ->
             val endLocation = Location("LocationB")
-            endLocation.latitude = item.geometry.coordinates[0]
+            endLocation.latitude = item.geometry.coordinates[0] //location from rest source
             endLocation.longitude = item.geometry.coordinates[1]
 
             val distance = EasyWayLocation.calculateDistance(
@@ -30,7 +32,7 @@ class MainViewHolder(
             Log.d("MainViewHolder", "distance: $distance")
             binding.distance = "${distance.toInt()}m"
         }?.orElse {
-            binding.distance = "NA"
+            binding.distance = "NA" //place holder when no current location available
         }
     }
 }
