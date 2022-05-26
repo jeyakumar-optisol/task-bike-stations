@@ -95,7 +95,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="@dimen/_5sdp"
                                 android:textStyle="normal"
-                                tools:text="Available Bikes" />
+                                android:text="Available Bikes" />
 
                             <androidx.appcompat.widget.AppCompatTextView
                                 android:id="@+id/availableBikeAppCompatTextView"
@@ -126,7 +126,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="@dimen/_5sdp"
                                 android:textStyle="normal"
-                                tools:text="Available Places" />
+                                android:text="Available Places" />
 
                             <androidx.appcompat.widget.AppCompatTextView
                                 android:id="@+id/availablePlacesAppCompatTextView"

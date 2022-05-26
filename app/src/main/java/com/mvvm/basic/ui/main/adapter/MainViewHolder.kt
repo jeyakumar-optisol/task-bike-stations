@@ -6,6 +6,7 @@ import com.example.easywaylocation.EasyWayLocation
 import com.mvvm.basic.databinding.ItemBikeStationsBinding
 import com.mvvm.basic.domain.model.bike_station.ResponseBikeStations
 import com.mvvm.basic.support.base.BaseViewHolder
+import com.mvvm.basic.support.inline.orElse
 
 class MainViewHolder(
     private val binding: ItemBikeStationsBinding,
@@ -14,7 +15,6 @@ class MainViewHolder(
 
     override fun bind(position: Int, item: ResponseBikeStations.Feature) {
         binding.feature = item.parcelize()
-        //binding.distanceAppCompatTextView.setText()
         MainAdapter.CURRENT_GPS_LOCATION?.let { currentLocation ->
             val endLocation = Location("LocationB")
             endLocation.latitude = item.geometry.coordinates[0]
@@ -28,7 +28,9 @@ class MainViewHolder(
             )
 
             Log.d("MainViewHolder", "distance: $distance")
-            binding.distanceAppCompatTextView.text = "${distance.toInt()}m"
+            binding.distance = "${distance.toInt()}m"
+        }?.orElse {
+            binding.distance = "NA"
         }
     }
 }

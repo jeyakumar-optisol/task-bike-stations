@@ -74,6 +74,7 @@ class MainActivity : AppCompatActivity() {
                 )
                 location?.let {
                     MainAdapter.CURRENT_GPS_LOCATION = it
+                    mainAdapter?.notifyDataSetChanged()
                 }
             }
 
