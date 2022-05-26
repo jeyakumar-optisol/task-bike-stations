@@ -10,22 +10,20 @@ import com.mvvm.basic.domain.datasources.remote.api.RestDataSource
 import com.mvvm.basic.domain.model.bike_station.ResponseBikeStations
 import com.mvvm.basic.support.CommonUtility.runOnNewThread
 import com.mvvm.basic.support.CommonUtility.runOnUiThread
+import com.mvvm.basic.support.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import javax.inject.Inject
 
 @HiltViewModel
 open class MainViewModel @Inject constructor(application: Application) :
-    AndroidViewModel(application) {
-    protected val context: Context get() = getApplication<Application>()
-
+    BaseViewModel(application) {
     @Inject
     lateinit var restDataSource: RestDataSource
 
-    val liveDataLoader = MutableLiveData<Boolean>()
     val liveDataBikeStations = MutableLiveData<List<ResponseBikeStations.Feature>>()
 
-    fun onCreate() {
+    override fun onCreate() {
         retrieveBikeStations { b, list ->
             if (b) {
                 liveDataBikeStations.value = list
@@ -49,24 +47,6 @@ open class MainViewModel @Inject constructor(application: Application) :
                     toast(this.getError())
                 }
             }
-        }
-    }
-
-    fun CoroutineScope.showLoader() {
-        runOnUiThread {
-            liveDataLoader.value = true
-        }
-    }
-
-    fun CoroutineScope.hideLoader() {
-        runOnUiThread {
-            liveDataLoader.value = false
-        }
-    }
-
-    fun CoroutineScope.toast(string: String) {
-        runOnUiThread {
-            Toast.makeText(context, string, Toast.LENGTH_SHORT).show()
         }
     }
 }

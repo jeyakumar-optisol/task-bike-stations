@@ -5,7 +5,8 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -49,7 +50,7 @@
                             style="@style/TextAppearance.MaterialComponents.Subtitle2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="800m"
+                            android:text="@{distance, default=`NA`}"
                             android:textStyle="normal"
                             tools:text="047 Ofiar Dabia" />
 
@@ -149,7 +150,11 @@
     <data>
 
         <variable
+            name="distance"
+            type="String" />
+
+        <variable
             name="feature"
-            type="com.mvvm.basic.domain.model.bike_station.ResponseBikeStations.Feature" />
+            type="com.mvvm.basic.domain.model.bike_station.ResponseBikeStations.Parcel" />
     </data>
 </layout>

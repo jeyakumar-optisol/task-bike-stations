@@ -1,6 +1,8 @@
-package com.mvvm.basic.ui.main
+package com.mvvm.basic.ui.view_station
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.ProgressDialog
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -13,36 +15,70 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.easywaylocation.EasyWayLocation
 import com.example.easywaylocation.EasyWayLocation.LOCATION_SETTING_REQUEST_CODE
 import com.example.easywaylocation.Listener
-import com.mvvm.basic.databinding.ActivityMainBinding
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
+import com.mvvm.basic.R
+import com.mvvm.basic.databinding.ActivityViewStationBinding
 import com.mvvm.basic.domain.model.bike_station.ResponseBikeStations
 import com.mvvm.basic.support.CommonUtility.selfCheckPermission
-import com.mvvm.basic.ui.main.adapter.MainAdapter
-import com.mvvm.basic.ui.view_station.ViewStationActivity
+import com.mvvm.basic.support.inline.orElse
 import dagger.hilt.android.AndroidEntryPoint
 import org.jetbrains.anko.toast
 
+
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class ViewStationActivity : AppCompatActivity() {
+    private val viewModel: ViewStationViewModel by lazy { ViewModelProvider(this)[ViewStationViewModel::class.java] }
+    private lateinit var binding: ActivityViewStationBinding
 
     private var easyWayLocation: EasyWayLocation? = null
     private var progressDialog: ProgressDialog? = null
-    private val viewModel: MainViewModel by lazy { ViewModelProvider(this)[MainViewModel::class.java] }
-    private lateinit var binding: ActivityMainBinding
-    private var mainAdapter: MainAdapter? = null
+    private lateinit var selectedBikeStation: ResponseBikeStations.Parcel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityViewStationBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel.onCreate()
 
+        initIntent()
         initPermission()
         initGps()
+        initMap()
         initData()
         initObserver()
         initListener()
         initPreview()
+    }
+
+    private fun initIntent() {
+        intent.getParcelableExtra<ResponseBikeStations.Parcel>(INTENT_SELECTED_BIKE_STATION)?.let {
+            selectedBikeStation = it
+        }.orElse {
+            Log.e("ViewStationActivity", "invalid call")
+            finish()
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun initMap() {
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+        mapFragment?.getMapAsync { googleMap ->
+
+            /*Add marker into map*/
+            val latLng = LatLng(selectedBikeStation.GeometryLat, selectedBikeStation.geometryLng)
+            googleMap.addMarker(
+                MarkerOptions().position(latLng)
+                    .title(selectedBikeStation.properties?.label ?: "Bike Station")
+                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_bike_marker))
+            ).showInfoWindow()
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom((latLng), 11.0F));
+            googleMap.isMyLocationEnabled = true
+        }
     }
 
     private fun initPermission() {
@@ -56,7 +92,7 @@ class MainActivity : AppCompatActivity() {
             toast("Location permission required")
         } else {
             ActivityCompat.requestPermissions(
-                this@MainActivity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 101
+                this@ViewStationActivity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 101
             );
         }
     }
@@ -72,8 +108,20 @@ class MainActivity : AppCompatActivity() {
                     "MainScreen",
                     "currentLocation: lat.${location?.latitude} lng.${location?.longitude}"
                 )
-                location?.let {
-                    MainAdapter.CURRENT_GPS_LOCATION = it
+                location?.let { location ->
+                    /*Update distance in UI*/
+                    val endLocation = Location("LocationB")
+                    endLocation.latitude = selectedBikeStation.GeometryLat
+                    endLocation.longitude = selectedBikeStation.geometryLng
+
+                    val distance = EasyWayLocation.calculateDistance(
+                        location.latitude,
+                        location.latitude,
+                        endLocation.latitude,
+                        endLocation.longitude
+                    )
+
+                    binding.distance = "${distance.toInt()}m"
                 }
             }
 
@@ -105,13 +153,6 @@ class MainActivity : AppCompatActivity() {
                 progressDialog = null
             }
         }
-        viewModel.liveDataBikeStations.observe(this) {
-            if (mainAdapter == null) {
-                mainAdapter = MainAdapter(itemListener)
-                binding.bikeStationsRecyclerView.adapter = mainAdapter
-            }
-            mainAdapter?.submitList(it)
-        }
     }
 
     private fun initListener() {
@@ -119,12 +160,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initPreview() {
-    }
-
-    private val itemListener = object : MainAdapter.ItemListener {
-        override fun onItemSelected(position: Int, item: ResponseBikeStations.Feature) {
-            ViewStationActivity.start(this@MainActivity, item.parcelize())
-        }
+        binding.feature = selectedBikeStation
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -163,5 +199,17 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         easyWayLocation?.endUpdates()
+    }
+
+    companion object {
+        private const val INTENT_SELECTED_BIKE_STATION = "INTENT_SELECTED_BIKE_STATION"
+
+        fun start(activity: Activity, feature: ResponseBikeStations.Parcel) {
+            activity.startActivity(
+                Intent(activity, ViewStationActivity::class.java).putExtra(
+                    INTENT_SELECTED_BIKE_STATION, feature
+                )
+            )
+        }
     }
 }

@@ -13,7 +13,7 @@ class MainViewHolder(
 ) : BaseViewHolder<ResponseBikeStations.Feature, Int>(selectionList, binding.root) {
 
     override fun bind(position: Int, item: ResponseBikeStations.Feature) {
-        binding.feature = item
+        binding.feature = item.parcelize()
         //binding.distanceAppCompatTextView.setText()
         MainAdapter.CURRENT_GPS_LOCATION?.let { currentLocation ->
             val endLocation = Location("LocationB")

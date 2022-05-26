@@ -30,6 +30,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ui.view_station.ViewStationActivity"
+            android:exported="true"/>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCDiUnxRrHowQzr2Gk0U63Km-soBwwBX5U" />
+
     </application>
 
 </manifest>
